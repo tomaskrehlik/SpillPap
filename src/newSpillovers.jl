@@ -1,4 +1,4 @@
-function generalisedWavSpillover(estimate::VAREST, H::Int, levels::Int)
+function generalisedWavSpillover(estimate::varEstimate, H::Int, levels::Int)
 	series = convert(Int, estimate.vars/(levels + 1))
 	θ = genFEVD(estimate, H)
 	diags = [sum(diag(θ[(1:series)+series*i, (1:series)+series*j])) for i=0:(levels), j=0:(levels)]./series
@@ -25,9 +25,9 @@ function spilloverOurs(data, levels, H, filter, restricted, egls)
 		f = fill(false, series, series)
 		c = fill(true, series)
 		mat = [[c t f f], [c f t f], [c f f t]]
-		return generalisedWavSpillover(restrictVAR2(VAREST(system, 5, "Const"), mat, egls), H, 2)
+		return generalisedWavSpillover(restrictVAR2(varEstimate(system, 5, "Const"), mat, egls), H, 2)
 	else
-		return generalisedWavSpillover(VAREST(system, 5, "Const"), H, 2)
+		return generalisedWavSpillover(varEstimate(system, 5, "Const"), H, 2)
 	end
 end
 
@@ -51,10 +51,10 @@ function spilloverOursRolling(data, levels, H, filter, restricted, egls, window)
 		c = fill(true, series)
 		mat = [[c t f f], [c f t f], [c f f t]]
 		out = @parallel (vcat) for i=0:(obs-window)
-			generalisedWavSpillover(restrictVAR2(VAREST(system[(1:window)+i,:], 1, "Const"), mat, egls), H, 2)
+			generalisedWavSpillover(restrictVAR2(varEstimate(system[(1:window)+i,:], 1, "Const"), mat, egls), H, 2)
 		end
 		return out
 	else
-		return [generalisedWavSpillover(VAREST(system[(1:window)+i,:], 2, "Const"), H, 2) for i=1:(obs-window)]
+		return [generalisedWavSpillover(varEstimate(system[(1:window)+i,:], 2, "Const"), H, 2) for i=1:(obs-window)]
 	end
 end

@@ -1,112 +1,15 @@
-function fftFEVD(data, lags, H, typ)
-	(n, k) = size(data)
-	a = VAREST(data, lags, typ)
-
-	Phi(a, H)
-
-	P = chol(a.Σ)
-
-	ft = mapslices(fft, a.Phi, [3])
-
-	decomp = [(abs(ft[:,i,z]'*P'[:,j]).^2)[1] / H for i=1:k, j = 1:k, z = 1:H]
-	denom = mapslices(sum, decomp, [3, 2])
-
-	return  mapslices((x) -> x./denom[:,:,1], decomp, [1,2])
-end
-
-function fftGenFEVD(data, lags, H, typ, nocorr = false)
-	(n, k) = size(data)
-	a = VAREST(data, lags, typ)
-
-	Phi(a, H)
-
-	if nocorr
-		Σ = diagm(diag(a.Σ))
-	else
-		Σ = a.Σ
-	end
-
-	P = chol(Σ)
-
-	ft = mapslices(fft, a.Phi, [3])
-
-	decompNew = [(abs(ft[:,i,z]'*Σ'[:,j]).^2)[1] / H for i=1:k, j = 1:k, z = 1:H]
-	decomp = [(abs(ft[:,i,z]'*P'[:,j]).^2)[1] / H for i=1:k, j = 1:k, z = 1:H]
-	denom = mapslices(sum, decomp, [3, 2])
-
-	θ = zeros(k,k,H)
-
-	for i = 1:k
-		for j = 1:k
-			for h = 1:H
-				θ[i,j,h] = decompNew[i,j,h]/(denom[i,1,1]*Σ[i,i])
-			end
-		end
-	end
-
-	div = mapslices(sum, θ, [1,3])
-
-	for i = 1:k
-		for j = 1:k
-			for h = 1:H
-				θ[i,j,h] = θ[i,j,h] / div[1,j,1]
-			end
-		end
-	end
-
-	return θ
-end
-
-# function fftGenFEVD(data, lags, H, typ)
-# 	(n, k) = size(data)
-# 	a = VAREST(data, lags, typ)
-
-# 	Phi(a, H)
-
-# 	P = chol(a.Σ)
-
-# 	ft = mapslices(fft, a.Phi, [3])
-
-# 	decompNew = [(abs(ft[:,i,z]'*a.Σ'[:,j]).^2)[1] / H for i=1:k, j = 1:k, z = 1:H]
-# 	decomp = [(abs(ft[:,i,z]'*P'[:,j]).^2)[1] / H for i=1:k, j = 1:k, z = 1:H]
-# 	denom = mapslices(sum, decomp, [3, 2])
-
-# 	θ = zeros(k,k,H)
-
-# 	for i = 1:k
-# 		for j = 1:k
-# 			for h = 1:H
-# 				θ[i,j,h] = decompNew[i,j,h]/(denom[i,1,1]*a.Σ[i,i])
-# 			end
-# 		end
-# 	end
-
-# 	div = mapslices(sum, θ, [1,3])
-
-# 	for i = 1:k
-# 		for j = 1:k
-# 			for h = 1:H
-# 				θ[i,j,h] = θ[i,j,h] / div[1,j,1]
-# 			end
-# 		end
-# 	end
-
-# 	# θ = [decompNew[i,j,h]/(denom[i,1,1]*a.Σ[i,i]) for i=1:k, j=1:k, h = 1:H]
-# 	# θ = [θ[i,j,h]/sum(θ[:,j,:]) for i=1:k, j=1:k, h = 1:H]
-# 	# θ = convert(Array{Float64}, θ)
-
-# 	return θ
-# end
 
 function fftSpillover09(data, lags, H, typ)
 	(n, k) = size(data)
-	decomp = fftFEVD(data, lags, H, typ)
+	est = varEstimate(data, lags, typ)
+	decomp = fftFEVD(est, H)
 	return 1-sum(mapslices((x)->sum(diag(x))/k, decomp, [1, 2]))
 end
 
 function fftSpillover12(data, lags, H, typ)
 	(n, k) = size(data)
-	decomp = fftGenFEVD(data, lags, H, typ)
+	est = varEstimate(data, lags, typ)
+	decomp = fftGenFEVD(est, H)
 	return 1-sum(mapslices((x)->sum(diag(x))/k, decomp, [1, 2]))
 end
 
@@ -124,7 +27,8 @@ function getIndexes(len, up, down)
 end
 
 function fftSpilloverDec09(data, lags, H, typ, bounds, proportions)
-	decomp = fftFEVD(data, lags, H, typ)
+	est = varEstimate(data, lags, typ)
+	decomp = fftFEVD(est, H)
 	(k, k, H) = size(decomp)
 	levels = size(bounds)[1]-2
 	output = zeros(Float64, levels + 1)
@@ -146,7 +50,8 @@ function fftSpilloverDec09(data, lags, H, typ, bounds, proportions)
 end
 
 function fftSpilloverDec12(data, lags, H, typ, bounds, proportions)
-	decomp = fftGenFEVD(data, lags, H, typ)
+	est = varEstimate(data, lags, typ)
+	decomp = fftGenFEVD(est, H)
 	(k, k, H) = size(decomp)
 	levels = size(bounds)[1]-2
 	output = zeros(Float64, levels + 1)
@@ -169,7 +74,8 @@ function fftSpilloverDec12(data, lags, H, typ, bounds, proportions)
 end
 
 function fftSpilloverDec12(data, lags, H, typ, bounds, proportions, nocorr = false)
-	decomp = fftGenFEVD(data, lags, H, typ, nocorr)
+	est = varEstimate(data, lags, typ)
+	decomp = fftGenFEVD(est, H, nocorr)
 	(k, k, H) = size(decomp)
 	levels = size(bounds)[1]-2
 	output = zeros(Float64, levels + 1)
@@ -192,7 +98,8 @@ function fftSpilloverDec12(data, lags, H, typ, bounds, proportions, nocorr = fal
 end
 
 function fftSpilloverTableDec09(data, lags, H, typ, bounds)
-	decomp = fftFEVD(data, lags, H, typ)
+	est = varEstimate(data, lags, typ)
+	decomp = fftFEVD(est, H)
 	(k, k, H) = size(decomp)
 	levels = size(bounds)[1]-2
 	output = zeros(Float64, k, k, levels + 1)
@@ -207,7 +114,8 @@ function fftSpilloverTableDec09(data, lags, H, typ, bounds)
 end
 
 function fftSpilloverTableDec12(data, lags, H, typ, bounds, nocorr = false)
-	decomp = fftGenFEVD(data, lags, H, typ, nocorr)
+	est = varEstimate(data, lags, typ)
+	decomp = fftGenFEVD(est, H, nocorr)
 	(k, k, H) = size(decomp)
 	levels = size(bounds)[1]-2
 	output = zeros(Float64, k, k, levels + 1)

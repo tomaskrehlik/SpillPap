@@ -1,5 +1,5 @@
 function spilloverDiebold09(data, lags, H, typ)
-	estimate = VAREST(data, lags, typ)
+	estimate = varEstimate(data, lags, typ)
 	FEVD = fevd(estimate, H)
 	spill = 1-sum(diag(FEVD))/estimate.vars
 	return spill::Float64
@@ -10,7 +10,7 @@ function spilloverDiebold09Rolling(data, lags, H, typ, window)
 end
 
 function spilloverDiebold12(data, lags, H, typ)
-	estimate = VAREST(data, lags, typ)
+	estimate = varEstimate(data, lags, typ)
 	GFEVD = genFEVD(estimate, H)
 	spill = 1-sum(diag(GFEVD))/estimate.vars
 	return spill::Float64
@@ -21,7 +21,7 @@ function spilloverDiebold12Rolling(data, lags, H, typ, window)
 end
 
 function spilloverDiebold12NoCorr(data, lags, H, typ)
-	estimate = VAREST(data, lags, typ)
+	estimate = varEstimate(data, lags, typ)
 	GFEVD = genFEVD(estimate, H, true)
 	spill = 1-sum(diag(GFEVD))/estimate.vars
 	return spill::Float64
