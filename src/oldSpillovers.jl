@@ -5,7 +5,7 @@ function spilloverDiebold09(data, lags, H, typ)
 	return spill::Float64
 end
 
-function spilloverDiebold09Rolling(data, lags, H, typ, window)
+function spilloverDiebold09(data, lags, H, typ, window)
 	return [spilloverDiebold09(data[(1:window)+i,:], lags, H, typ) for i=0:(size(data)[1]-window)]
 end
 
@@ -16,7 +16,7 @@ function spilloverDiebold12(data, lags, H, typ)
 	return spill::Float64
 end
 
-function spilloverDiebold12Rolling(data, lags, H, typ, window)
+function spilloverDiebold12(data, lags, H, typ, window)
 	return [spilloverDiebold12(data[(1:window)+i,:], lags, H, typ) for i=0:(size(data)[1]-window)]
 end
 
