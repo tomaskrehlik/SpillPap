@@ -8,7 +8,7 @@ module SpillPap
 	import Base.show
 
 	include("spillovers.jl")
-	export spiloverTable
+	export spilloverTable
 
 	include("SpilloverTable.jl")
 	export SpilloverTable

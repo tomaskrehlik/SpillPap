@@ -25,17 +25,17 @@ type SpilloverTableFrequency
 end
 
 function show(io::IO, tab::SpilloverTableFrequency)
-	n = size(bands)[1]
+	n = size(tab.bands)[1]
 	print("WITHIN SPILLOVERS: \n")
 	for i=1:(n-1)
-		print("Band: " * bands[i] * " to " * bands[i+1] * "\n")
-		printTable(tab.tables_within[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
+		print("Band: " * string(tab.bands[i]) * " to " * string(tab.bands[i+1]) * "\n")
+		print(tab.tables_within[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
 	end
 	print("\n\n")
 	print("ABSOLUTE SPILLOVERS: \n")
 	for i=1:(n-1)
-		print("Band: " * bands[i] * " to " * bands[i+1] * "\n")
-		printTable(tab.tables_absolute[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
+		print("Band: " * string(tab.bands[i]) * " to " * string(tab.bands[i+1]) * "\n")
+		print(tab.tables_absolute[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
 	end
 end
 
@@ -44,7 +44,7 @@ function SpilloverTableFrequency(table, bands)
 	SpilloverTableFrequency(table, bands, ["v" * j for j=[sprintf1("%d", i) for i=1:size(table)[1]]])
 end
 
-function SpilloverTableFrequency(table, bands, names)
+function SpilloverTableFrequency(table, bands::Vector{Float64}, names::Vector{String})
 	@assert typeof(table) <: Array{Float64, 3} "The argument should be a spillover table produced by function spilloverTable."
 	@assert size(table)[3] > 1 "There should only be one frequency band, for frequency based measures, use SpilloverTableFrequency"
 
@@ -54,15 +54,15 @@ function SpilloverTableFrequency(table, bands, names)
 		output_within[i] = SpilloverTable(table[:,:,i], names)
 	end
 
-	output_absolute = output_within
+	output_absolute = deepcopy(output_within)
 
 	for i = 1:size(table)[3]
 		variance_share = sum(output_within[i].table)/(100*size(table)[2])
-		output_absolute[i].overall /= variance_share
-		output_absolute[i].to /= variance_share
-		output_absolute[i].from /= variance_share
-		output_absolute[i].pairwise /= variance_share
-		output_absolute[i].net /= variance_share
+		output_absolute[i].overall *= variance_share
+		output_absolute[i].to *= variance_share
+		output_absolute[i].from *= variance_share
+		output_absolute[i].pairwise *= variance_share
+		output_absolute[i].net *= variance_share
 	end
 	SpilloverTableFrequency(bands, output_within, output_absolute)
 end

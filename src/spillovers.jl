@@ -22,6 +22,7 @@ The function return `KxKxB-1` array, where `K` is the number of variables within
 and `B` is the size of the `bounds` vector. In the case for DY (2009, 2012), the `B = 2`
 
 Use the function such as
+
 ````
 using VARmodels
 usign SpillPap
@@ -33,6 +34,7 @@ type = \"Const\"
 bounds = [π + 0.0001; π/5; π/20; π/60; 0]
 spillTab = spilloverTable(varEstimate(data, lags, typ), 600; fevd_function = fftGenFEVD, bounds = bounds, nocorr = false)
 ````
+
 """
 function spilloverTable(est::VARmodels.VARRepresentation, H; fevd_function = genFEVD, bounds = nothing, nocorr = false)
 	@assert fevd_function in [fftGenFEVD, fftFEVD, fevd, genFEVD] "The only supported types of FEVD computation are [:fftGenFEVD, :fftFEVD, :fevd, :genFEVD]"
@@ -40,13 +42,13 @@ function spilloverTable(est::VARmodels.VARRepresentation, H; fevd_function = gen
 		space = collect(0:fld(len,2))./(fld(len,2)).*π
 		lb = space.>=down
 		ub = space.<up
-		output = (lb & ub)
+		output_range = (lb & ub)
 		if (len%2 == 0)
-			output = [output; reverse(output[2:(end-1)])]
+			output_range = [output_range; reverse(output_range[2:(end-1)])]
 		else
-			output = [output; reverse(output[2:end])]
+			output_range = [output_range; reverse(output_range[2:end])]
 		end
-		return output
+		return output_range
 	end
 
 

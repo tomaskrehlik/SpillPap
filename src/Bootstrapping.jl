@@ -82,6 +82,7 @@ end
 # This is only a helper function all the machinery is taken care of by the constructor functions of the ...Booted objects.
 
 function get_quantiles_from_SpilloverTable(stl, ind_down, ind_up)
+	names = stl[1].names
 	reps = size(stl)[1]
 	# table
 	bb = hcat(map((i)->vec(stl[i].table), 1:reps)...)
@@ -135,7 +136,7 @@ function get_quantiles_from_SpilloverTable(stl, ind_down, ind_up)
 	overall_up=res[2]
 
 	
-	return (SpilloverTable(table_up, from_up, to_up, net_up, pairwise_up, overall_up), SpilloverTable(table_down, from_down, to_down, net_down, pairwise_down, overall_down))
+	return (SpilloverTable(names, table_up, from_up, to_up, net_up, pairwise_up, overall_up), SpilloverTable(names, table_down, from_down, to_down, net_down, pairwise_down, overall_down))
 end
 
 
