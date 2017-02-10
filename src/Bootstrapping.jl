@@ -94,57 +94,62 @@ function get_quantiles_from_SpilloverTable(stl, ind_down, ind_up)
 	# table
 	bb = hcat(map((i)->vec(stl[i].table), 1:reps)...)
 	res = zeros(size(bb)[1],2)
+	res_mean = zeros(size(bb)[1],1)
 	for i=1:size(bb)[1]
 	    res[i, :] = sort(bb[i,:])[[ind_down, ind_up]]
-			res_mean = mean(bb[i,:])
+			res_mean[i, 1] = mean(bb[i,:])
 	end
 	table_down=reshape(res[:,1], size(stl[1].table))
 	table_up=reshape(res[:,2], size(stl[1].table))
-	table_mean=reshape(res_mean, size(stl[1].table))
+	table_mean=reshape(res_mean[:,1], size(stl[1].table))
 
 	# pairwise
 	bb = hcat(map((i)->vec(stl[i].pairwise), 1:reps)...)
 	res = zeros(size(bb)[1],2)
+	res_mean = zeros(size(bb)[1],1)
 	for i=1:size(bb)[1]
 	    res[i, :] = sort(bb[i,:])[[ind_down, ind_up]]
-			res_mean = mean(bb[i,:])
+			res_mean[i, 1] = mean(bb[i,:])
 	end
 	pairwise_down=reshape(res[:,1], size(stl[1].pairwise))
 	pairwise_up=reshape(res[:,2], size(stl[1].pairwise))
-	pairwise_mean=reshape(res_mean, size(stl[1].pairwise))
+	pairwise_mean=reshape(res_mean[:,1], size(stl[1].pairwise))
 
 	# from
 	bb = hcat(map((i)->stl[i].from, 1:reps)...)
 	res = zeros(size(bb)[1],2)
+	res_mean = zeros(size(bb)[1],1)
 	for i=1:size(bb)[1]
 	    res[i, :] = sort(bb[i,:])[[ind_down, ind_up]]
-			res_mean = mean(bb[i,:])
+			res_mean[i, 1] = mean(bb[i,:])
 	end
 	from_down=reshape(res[:,1], size(stl[1].from))
 	from_up=reshape(res[:,2], size(stl[1].from))
-	from_mean=reshape(res_mean, size(stl[1].from))
+	from_mean=reshape(res_mean[:,1], size(stl[1].from))
 
 	# to
 	bb = hcat(map((i)->stl[i].to, 1:reps)...)
 	res = zeros(size(bb)[1],2)
+	res_mean = zeros(size(bb)[1],1)
 	for i=1:size(bb)[1]
 	    res[i, :] = sort(bb[i,:])[[ind_down, ind_up]]
-			res_mean = mean(bb[i,:])
+			res_mean[i, 1] = mean(bb[i,:])
 	end
 	to_down=reshape(res[:,1], size(stl[1].to))
 	to_up=reshape(res[:,2], size(stl[1].to))
-	to_mean=reshape(res_mean, size(stl[1].to))
+	to_mean=reshape(res_mean[:,1], size(stl[1].to))
 
 	# net
 	bb = hcat(map((i)->stl[i].net, 1:reps)...)
 	res = zeros(size(bb)[1],2)
+	res_mean = zeros(size(bb)[1],1)
 	for i=1:size(bb)[1]
 	    res[i, :] = sort(bb[i,:])[[ind_down, ind_up]]
-			res_mean = mean(bb[i,:])
+			res_mean[i, 1] = mean(bb[i,:])
 	end
 	net_down=reshape(res[:,1], size(stl[1].net))
 	net_up=reshape(res[:,2], size(stl[1].net))
-	net_mean=reshape(res_mean, size(stl[1].net))
+	net_mean=reshape(res_mean[:,1], size(stl[1].net))
 
 	# overall
 	bb = hcat(map((i)->stl[i].overall, 1:reps)...)
