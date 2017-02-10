@@ -1,5 +1,6 @@
 type SpilloverTableBooted
 	estimate::SpilloverTable
+	mean::SpilloverTable
 	up::SpilloverTable
 	down::SpilloverTable
 	quantiles::Vector{Float64}
@@ -35,9 +36,9 @@ function SpilloverTableBooted(est::VARmodels.VARRepresentation, H, reps; fevd_fu
 	down_ind = convert(Int, floor(reps*quantiles[1]))
 	up_ind = convert(Int, floor(reps*quantiles[2]))
 
-	(up, down) = get_quantiles_from_SpilloverTable(spillTableBooted, down_ind, up_ind)
+	(mean, up, down) = get_quantiles_from_SpilloverTable(spillTableBooted, down_ind, up_ind)
 
-	SpilloverTableBooted(spillsEstimate, up, down, quantiles)
+	SpilloverTableBooted(spillsEstimate, mean, up, down, quantiles)
 end
 
 
