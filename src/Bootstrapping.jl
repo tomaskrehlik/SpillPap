@@ -53,7 +53,18 @@ end
 
 function show(io::IO, tab::SpilloverTableFrequencyBooted)
 	print("The object contains bootstrapped confidence intervals not shown in here.\n")
-	printTable(tab.estimate)
+	n = size(tab.estimate.bands)[1]
+	print("WITHIN SPILLOVERS: \n")
+	for i=1:(n-1)
+		print("Band: " * string(tab.estimate.bands[i]) * " to " * string(tab.estimate.bands[i+1]) * "\n")
+		print(tab.estimate.tables_within[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
+	end
+	print("\n\n")
+	print("ABSOLUTE SPILLOVERS: \n")
+	for i=1:(n-1)
+		print("Band: " * string(tab.estimate.bands[i]) * " to " * string(tab.estimate.bands[i+1]) * "\n")
+		print(tab.estimate.tables_absolute[i]) # This is a printing function for SpilloverTable, see SpilloverTable.jl for source.
+	end
 end
 
 function SpilloverTableFrequencyBooted(est::VARmodels.VARRepresentation, H, reps; bounds = nothing, fevd_function = fftGenFEVD, nocorr = false, burnout = 100, quantiles = [0.05, 0.95], boot_sample_length = 0)
